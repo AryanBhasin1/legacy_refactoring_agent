@@ -6,7 +6,7 @@ export default function SessionHeader({ session }) {
       <div className="border-b border-zinc-200 bg-white dark:bg-zinc-900 p-6 dark:bg-zinc-900">
         <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-300">Code Refactoring</h1>
         <p className="mt-2 text-sm text-zinc-500">
-          Create a session to begin uploading folders and chatting with the analysis system.
+          Create a session to begin uploading folders to analysis.
         </p>
       </div>
     );

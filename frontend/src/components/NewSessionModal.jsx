@@ -40,7 +40,7 @@ export default function NewSessionModal({ isOpen, onClose, onCreate }) {
           <div>
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-300">Create New Session</h2>
             <p className="mt-1 text-sm text-zinc-500">
-              Give this workspace a name to start uploading and chatting.
+              Give this workspace a name to start uploading and analyzing.
             </p>
           </div>
 

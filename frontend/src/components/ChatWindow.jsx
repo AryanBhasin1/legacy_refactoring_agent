@@ -39,7 +39,7 @@ export default function ChatWindow({ session, addMessage, setSessionStatus }) {
   if (!session) {
     return (
       <div className="flex h-full items-center justify-center rounded-2xl border border-zinc-200 bg-white dark:bg-zinc-900 p-6 shadow-sm">
-        <p className="text-sm text-zinc-500">Create a session to start chatting.</p>
+        <p className="text-sm text-zinc-500">Create a session to start analyzing.</p>
       </div>
     );
   }
