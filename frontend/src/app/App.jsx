@@ -225,13 +225,6 @@ export default function App() {
     if (!session) return;
 
     const repoPath = session.repoPath.trim();
-    if (!repoPath) {
-      store.addMessage(session.id, {
-        role: "assistant",
-        content: "Add a local repository path in the sidebar before running Scan.",
-      });
-      return;
-    }
 
     setPipelineAction(session.id, "scan", "running");
     store.setSessionStatus(session.id, "scanning");
@@ -332,14 +325,6 @@ export default function App() {
 
     const repoPath = session.repoPath.trim();
     const selectedCluster = session.pipeline?.selectedCluster;
-
-    if (!repoPath) {
-      store.addMessage(session.id, {
-        role: "assistant",
-        content: "Add a local repository path before generating a microservice.",
-      });
-      return;
-    }
 
     if (!selectedCluster) {
       store.addMessage(session.id, {
