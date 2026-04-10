@@ -227,7 +227,12 @@ async def ingest_files(
                         "summary": "No functions found",
                     })
 
-        return {"files": file_results}
+        return {
+            "files": file_results,
+            "repo_path": str(upload_dir),
+            "functions": len(functions),
+            "edges": sum(len(fn.calls) for fn in functions),
+        }
     except Exception as e:
         pipeline_state["error"] = str(e)
         raise HTTPException(status_code=500, detail=str(e))
