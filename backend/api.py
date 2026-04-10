@@ -509,3 +509,4 @@ def get_verification():
         return {"results": [], "summary": {"total": 0, "passed": 0, "failed": 0}}
     with open(results_path, encoding="utf-8") as f:
         return json.load(f)
+
