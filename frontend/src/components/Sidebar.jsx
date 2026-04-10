@@ -269,15 +269,14 @@ export default function Sidebar({
                 onClick={onCalculateMicroservices}
                 disabled={!activeSession.pipeline?.scanSummary}
               />
-              {activeSession.pipeline?.selectedCluster ? (
-                <ActionButton
-                  icon={Sparkles}
-                  title="Generate Microservice"
-                  description=""
-                  isLoading={activeSession.pipeline?.actionState?.generate === "running"}
-                  onClick={onGenerateMicroservice}
-                />
-              ) : null}
+              <ActionButton
+                icon={Sparkles}
+                title="Generate Microservice"
+                description=""
+                isLoading={activeSession.pipeline?.actionState?.generate === "running"}
+                onClick={onGenerateMicroservice}
+                disabled={!activeSession.pipeline?.selectedCluster}
+              />
               <ActionButton
                 icon={TimerReset}
                 title="Reset Workspace"
