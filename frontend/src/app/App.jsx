@@ -12,6 +12,7 @@ import {
   generateMicroservice,
   resetWorkspace,
   scanRepository,
+  uploadSessionFiles,
 } from "../api";
 
 const SIDEBAR_WIDTH_KEY = "legacy-refactoring-sidebar-width";
@@ -45,6 +46,7 @@ function createInitialPipeline() {
       cluster: "idle",
       generate: "idle",
       reset: "idle",
+      upload: "idle",
     },
     error: null,
   };
@@ -131,7 +133,7 @@ export default function App() {
     fileInputRef.current?.click();
   };
 
-  const handleFilesPicked = (event) => {
+  const handleFilesPicked = async (event) => {
     const selectedFiles = Array.from(event.target.files || []);
     if (selectedFiles.length === 0) return;
 
@@ -143,12 +145,64 @@ export default function App() {
       files: selectedFiles,
     });
 
-    store.addMessage(session.id, {
-      role: "assistant",
-      content: `Added ${selectedFiles.length} local file${selectedFiles.length === 1 ? "" : "s"} to this project session.`,
-    });
-
+    // Reset the file input so re-uploading the same folder works
     event.target.value = "";
+
+    // --- Upload files to the backend and get the server-side repo path ---
+    updatePipeline(session.id, (pipeline) => ({
+      ...pipeline,
+      actionState: { ...pipeline.actionState, upload: "running" },
+    }));
+    store.setSessionStatus(session.id, "uploading");
+
+    try {
+      const data = await uploadSessionFiles(session.id, selectedFiles);
+
+      // Store the backend repo path so Scan uses it automatically
+      const serverRepoPath = data.repo_path || "";
+      store.setSessionRepoPath(session.id, serverRepoPath);
+
+      store.addMessage(session.id, {
+        role: "assistant",
+        content: `Uploaded ${selectedFiles.length} file${selectedFiles.length === 1 ? "" : "s"} to the server. ${data.functions ?? 0} functions detected across ${data.files?.length ?? 0} source files. Click **Scan** to run the full analysis pipeline.`,
+      });
+
+      // If ingest already found functions, mark scan as done
+      if (data.functions && data.functions > 0) {
+        updatePipeline(session.id, (pipeline) => ({
+          ...pipeline,
+          scanSummary: {
+            functions: data.functions ?? 0,
+            dependencies: data.edges ?? 0,
+            repoPath: serverRepoPath,
+          },
+          actionState: {
+            ...pipeline.actionState,
+            upload: "success",
+            scan: "success",
+          },
+        }));
+        store.setSessionStatus(session.id, "scan complete");
+      } else {
+        updatePipeline(session.id, (pipeline) => ({
+          ...pipeline,
+          actionState: { ...pipeline.actionState, upload: "success" },
+        }));
+        store.setSessionStatus(session.id, "uploaded");
+      }
+    } catch (error) {
+      console.error(error);
+      store.addMessage(session.id, {
+        role: "assistant",
+        content: `Upload failed: ${error.message}. You can still enter a local repo path manually and click Scan.`,
+      });
+      updatePipeline(session.id, (pipeline) => ({
+        ...pipeline,
+        error: error.message,
+        actionState: { ...pipeline.actionState, upload: "error" },
+      }));
+      store.setSessionStatus(session.id, "error");
+    }
   };
 
   const handleOpenGithubModal = () => {
@@ -225,6 +279,14 @@ export default function App() {
     if (!session) return;
 
     const repoPath = session.repoPath.trim();
+
+    if (!repoPath) {
+      store.addMessage(session.id, {
+        role: "assistant",
+        content: "No repository path set. Upload a folder first, or enter a local repo path manually.",
+      });
+      return;
+    }
 
     setPipelineAction(session.id, "scan", "running");
     store.setSessionStatus(session.id, "scanning");
