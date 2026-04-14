@@ -1,14 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   TimerReset,
-  CheckCircle2,
   FileCode2,
   Folder,
   FolderGit2,
   FolderKanban,
   FolderTree,
   History,
-  Layers,
   LoaderCircle,
   PanelLeftClose,
   Plus,
@@ -16,7 +14,6 @@ import {
   Search,
   Sparkles,
   Trash2,
-  UploadCloud,
   Workflow,
 } from "lucide-react";
 
@@ -124,7 +121,6 @@ export default function Sidebar({
   onScan,
   onCalculateMicroservices,
   onGenerateMicroservice,
-  onGenerateAllMicroservices,
   onResetWorkspace,
 }) {
   const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
@@ -203,13 +199,6 @@ export default function Sidebar({
         ? "Chat History"
         : "Workspace";
 
-  // Derive upload status for the active session
-  const uploadState = activeSession?.pipeline?.actionState?.upload;
-  const isUploading = uploadState === "running";
-  const hasUploaded = uploadState === "success";
-  const uploadFailed = uploadState === "error";
-  const hasRepoPath = !!(activeSession?.repoPath?.trim());
-
   return (
     <aside className="relative z-20 flex h-full w-full flex-col overflow-visible bg-zinc-950 text-zinc-100">
       <div className="relative z-30 overflow-visible border-b border-zinc-800 px-3 py-3">
@@ -248,54 +237,20 @@ export default function Sidebar({
               </div>
             </div>
 
-            {/* Upload status indicator */}
-            {isUploading ? (
-              <div className="mt-3 flex items-center gap-2 rounded-2xl border border-emerald-800 bg-emerald-900/30 px-3 py-2 text-xs text-emerald-300">
-                <LoaderCircle size={14} className="animate-spin" />
-                Uploading files to server...
-              </div>
-            ) : hasUploaded && hasRepoPath ? (
-              <div className="mt-3 flex items-center gap-2 rounded-2xl border border-emerald-800 bg-emerald-900/20 px-3 py-2 text-xs text-emerald-400">
-                <CheckCircle2 size={14} />
-                Files uploaded — repo path set automatically
-              </div>
-            ) : uploadFailed ? (
-              <div className="mt-3 flex items-center gap-2 rounded-2xl border border-rose-800 bg-rose-900/20 px-3 py-2 text-xs text-rose-400">
-                Upload failed — enter a repo path manually below
-              </div>
-            ) : null}
-
             <label className="mt-4 block">
               <span className="mb-2 block text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">
                 Repository Path
               </span>
-              {hasUploaded && activeSession.repoPath ? (
-                <>
-                  <div className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100">
-                    {activeSession.name}
-                  </div>
-                  <p className="mt-2 text-xs text-zinc-500">
-                    Auto-set from your upload. You can override with a different local path.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <input
-                    type="text"
-                    value={activeSession.repoPath || ""}
-                    onChange={(event) => onRepoPathChange(activeSession.id, event.target.value)}
-                    placeholder={
-                      activeSession.sourceType === "upload"
-                        ? "Upload a folder above, or enter a local path"
-                        : "/Users/you/projects/legacy-monolith"
-                    }
-                    className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
-                  />
-                  <p className="mt-2 text-xs text-zinc-500">
-                    Upload a folder to auto-set, or type a local path the backend can read.
-                  </p>
-                </>
-              )}
+              <input
+                type="text"
+                value={activeSession.repoPath || ""}
+                onChange={(event) => onRepoPathChange(activeSession.id, event.target.value)}
+                placeholder="/Users/you/projects/legacy-monolith"
+                className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
+              />
+              <p className="mt-2 text-xs text-zinc-500">
+                Use a local path the backend can read when running scan or generation.
+              </p>
             </label>
 
             <div className="mt-4 space-y-2.5">
@@ -305,7 +260,6 @@ export default function Sidebar({
                 description=""
                 isLoading={activeSession.pipeline?.actionState?.scan === "running"}
                 onClick={onScan}
-                disabled={!hasRepoPath}
               />
               <ActionButton
                 icon={Workflow}
@@ -322,14 +276,6 @@ export default function Sidebar({
                 isLoading={activeSession.pipeline?.actionState?.generate === "running"}
                 onClick={onGenerateMicroservice}
                 disabled={!activeSession.pipeline?.selectedCluster}
-              />
-              <ActionButton
-                icon={Layers}
-                title="Generate All"
-                description=""
-                isLoading={activeSession.pipeline?.actionState?.generateAll === "running"}
-                onClick={onGenerateAllMicroservices}
-                disabled={!activeSession.pipeline?.clusterSummary}
               />
               <ActionButton
                 icon={TimerReset}
@@ -366,11 +312,11 @@ export default function Sidebar({
                     }}
                     className="flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-zinc-900"
                   >
-                    <UploadCloud size={18} className="mt-0.5 text-emerald-300" />
+                    <Folder size={18} className="mt-0.5 text-emerald-300" />
                     <span>
-                      <span className="block text-sm font-medium text-white">Upload folder</span>
+                      <span className="block text-sm font-medium text-white">Add file or folder</span>
                       <span className="mt-1 block text-xs text-zinc-400">
-                        Upload a project folder — files are sent to the server for scanning.
+                        Start a new project session from local files.
                       </span>
                     </span>
                   </button>
