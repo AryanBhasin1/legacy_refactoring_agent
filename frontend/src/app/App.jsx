@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import SessionHeader from "../components/SessionHeader";
-import ChatWindow from "../components/ChatWindow";
-import ResultsPanel from "../components/ResultsPanel";
+import Dashboard from "../components/Dashboard";
 import NewSessionModal from "../components/NewSessionModal";
 import useSessionStore from "../hooks/useSessionStore";
 import {
@@ -635,6 +634,7 @@ export default function App() {
 
   return (
     <div
+      id="app"
       className={`relative h-screen bg-zinc-100 dark:bg-zinc-600 ${
         isResizingSidebar ? "select-none" : ""
       }`}
@@ -694,31 +694,19 @@ export default function App() {
           ) : null}
         </div>
 
-        <main className="flex min-w-0 flex-1 flex-col">
+        <main id="app-main" className="flex min-w-0 flex-1 flex-col">
           <SessionHeader
             session={store.activeSession}
             isSidebarVisible={isSidebarVisible}
             onToggleSidebar={handleToggleSidebar}
           />
 
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 p-6 xl:grid-cols-[1.4fr_1fr]">
-            <div className="flex min-h-0 flex-col gap-6">
-              <div className="min-h-0 flex-1">
-                <ChatWindow
-                  session={store.activeSession}
-                  addMessage={store.addMessage}
-                  setSessionStatus={store.setSessionStatus}
-                />
-              </div>
-            </div>
-
-            <div className="min-h-0">
-              <ResultsPanel
-                session={store.activeSession}
-                onSelectCluster={handleSelectCluster}
-              />
-            </div>
-          </div>
+          <Dashboard
+            session={store.activeSession}
+            addMessage={store.addMessage}
+            setSessionStatus={store.setSessionStatus}
+            onSelectCluster={handleSelectCluster}
+          />
         </main>
       </div>
 

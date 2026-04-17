@@ -26,3 +26,15 @@ input,
 textarea {
   font: inherit;
 }
+
+:where(
+  .rounded-full,
+  .rounded-xl,
+  .rounded-2xl,
+  .rounded-3xl,
+  .rounded-\[12px\],
+  .rounded-\[24px\],
+  .rounded-\[28px\]
+) {
+  border-radius: 8px !important;
+}

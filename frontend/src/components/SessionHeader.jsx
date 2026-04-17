@@ -5,6 +5,7 @@ function SidebarToggleButton({ isSidebarVisible, onToggleSidebar }) {
 
   return (
     <button
+      id="sidebar-toggle-button"
       type="button"
       onClick={onToggleSidebar}
       className="flex h-11 w-11 items-center justify-center rounded-2xl border border-zinc-700 bg-zinc-950 text-zinc-100 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-zinc-900 hover:text-white"
@@ -19,7 +20,7 @@ function SidebarToggleButton({ isSidebarVisible, onToggleSidebar }) {
 export default function SessionHeader({ session, isSidebarVisible, onToggleSidebar }) {
   if (!session) {
     return (
-      <div className="border-b border-zinc-200 bg-white p-6 dark:bg-zinc-900">
+      <div id="session-header" className="border-b border-zinc-200 bg-white p-6 dark:bg-zinc-900">
         <div className="flex items-start gap-4">
           <SidebarToggleButton
             isSidebarVisible={isSidebarVisible}
@@ -27,7 +28,7 @@ export default function SessionHeader({ session, isSidebarVisible, onToggleSideb
           />
 
           <div className="min-w-0 flex-1">
-            <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-300">
+            <h1 className="text-l font-semibold text-zinc-900 dark:text-zinc-300">
               Code Refactoring
             </h1>
 
@@ -41,7 +42,7 @@ export default function SessionHeader({ session, isSidebarVisible, onToggleSideb
   }
 
   return (
-    <div className="border-b border-zinc-200 bg-white p-6 dark:bg-zinc-900">
+    <div id="session-header" className="border-b border-zinc-200 bg-white p-6 dark:bg-zinc-900">
       <div className="flex items-start gap-4">
         <SidebarToggleButton
           isSidebarVisible={isSidebarVisible}
@@ -63,7 +64,7 @@ export default function SessionHeader({ session, isSidebarVisible, onToggleSideb
             {session.files.length} files • Status: {session.status}
           </p>
           {session.repoPath ? (
-            <p className="mt-2 text-sm text-zinc-500">Repo path: {session.name}</p>
+            <p className="mt-2 text-sm text-zinc-500">Repo path: {session.repoPath}</p>
           ) : null}
           {session.repoUrl ? <p className="mt-2 text-sm text-zinc-500">{session.repoUrl}</p> : null}
         </div>

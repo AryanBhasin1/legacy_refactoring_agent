@@ -15,6 +15,14 @@ function formatNumber(value) {
   return new Intl.NumberFormat().format(value ?? 0);
 }
 
+function toDomIdFragment(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "item";
+}
+
 function getClusterGraph(clusterSummary, graph) {
   const clusters = Object.entries(clusterSummary?.clusters || {});
   if (clusters.length === 0) return { nodes: [], edges: [] };
@@ -78,18 +86,15 @@ function getClusterMembers(graph, clusterName) {
 function MetricCard({ label, value, tone = "default" }) {
   return (
     <div
+      id={`metric-card-${toDomIdFragment(label)}`}
       className={`rounded-2xl border px-4 py-4 ${
         tone === "accent"
-          ? "border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/40"
+          ? "border-emerald-200 bg-emerald-50"
           : "border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/70"
       }`}
     >
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">{label}</p>
-      <p className={`mt-2 font-semibold ${
-        tone === "accent"
-          ? "text-2xl text-emerald-800 dark:text-emerald-200"
-          : "text-2xl text-zinc-900 dark:text-zinc-100"
-      }`}>{value}</p>
+      <p className="mt-2 text-2xl font-semibold text-zinc-900 dark:text-zinc-100">{value}</p>
     </div>
   );
 }
@@ -99,14 +104,17 @@ function ClusterGraph({ clusterSummary, graph, selectedCluster, onSelectCluster 
 
   if (graphData.nodes.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-zinc-300 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/60">
+      <div
+        id="cluster-graph"
+        className="rounded-3xl border border-dashed border-zinc-300 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/60"
+      >
         Run microservice calculation to reveal the cluster graph.
       </div>
     );
   }
 
   return (
-    <div className="rounded-3xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/60">
+    <div id="cluster-graph" className="rounded-3xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/60">
       <div className="mb-4 flex items-center gap-2">
         <Workflow size={18} className="text-emerald-500" />
         <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-300">
@@ -169,16 +177,17 @@ function ClusterGraph({ clusterSummary, graph, selectedCluster, onSelectCluster 
         </svg>
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
+      <div className="mt-4 columns-1 gap-3 md:columns-2">
         {Object.entries(clusterSummary?.clusters || {}).map(([name, cluster]) => {
           const isSelected = selectedCluster === name;
 
           return (
             <button
+              id={`cluster-card-${toDomIdFragment(name)}`}
               key={name}
               type="button"
               onClick={() => onSelectCluster(name)}
-              className={`rounded-2xl border px-4 py-3 text-left transition ${
+              className={`mb-3 block w-full [break-inside:avoid] rounded-2xl border px-4 py-3 text-left transition ${
                 isSelected
                   ? "border-emerald-300 bg-emerald-50 dark:bg-emerald-500/10"
                   : "border-zinc-200 bg-white hover:border-emerald-300 dark:border-zinc-800 dark:bg-zinc-950"
@@ -372,14 +381,17 @@ function GenerationPreview({ session }) {
   // Fallback: single service or no services yet
   if (!selectedCluster && !generatedService) {
     return (
-      <div className="rounded-3xl border border-dashed border-zinc-300 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/60">
+      <div
+        id="generation-preview"
+        className="rounded-3xl border border-dashed border-zinc-300 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/60"
+      >
         Select a cluster from the graph to prepare microservice generation.
       </div>
     );
   }
 
   return (
-    <div className="rounded-3xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/60">
+    <div id="generation-preview" className="rounded-3xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/60">
       <div className="mb-4 flex items-center gap-2">
         <Sparkles size={18} className="text-emerald-500" />
         <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-300">
@@ -387,8 +399,8 @@ function GenerationPreview({ session }) {
         </h3>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        <div className="rounded-[24px] border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="grid gap-4">
+        <div className="rounded-[12px] border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
           <div className="mb-4 flex items-center gap-2">
             <CircleDot size={16} className="text-emerald-500" />
             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
@@ -428,7 +440,10 @@ function GenerationPreview({ session }) {
 export default function ResultsPanel({ session, onSelectCluster }) {
   if (!session) {
     return (
-      <div className="flex h-full items-center justify-center rounded-2xl border border-zinc-200 bg-white dark:bg-zinc-900 p-6 shadow-sm">
+      <div
+        id="results-panel"
+        className="flex h-full items-center justify-center rounded-2xl border border-zinc-200 bg-white dark:bg-zinc-900 p-6 shadow-sm"
+      >
         <p className="text-sm text-zinc-500">Analysis results will appear here.</p>
       </div>
     );
@@ -441,7 +456,7 @@ export default function ResultsPanel({ session, onSelectCluster }) {
   const clusterRunning = pipeline.actionState?.cluster === "running";
 
   return (
-    <div className="h-full overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:bg-zinc-900">
+    <div id="results-panel" className="h-full overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:bg-zinc-900">
       <div className="mb-4 flex items-center gap-2">
         <BarChart3 size={18} className="text-zinc-700" />
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-300">Results</h2>
@@ -468,10 +483,10 @@ export default function ResultsPanel({ session, onSelectCluster }) {
       ) : null}
 
       {scanSummary ? (
-        <div className="mb-6 grid gap-3 md:grid-cols-3">
-          <MetricCard label="Functions" value={formatNumber(scanSummary.functions)} tone="accent" />
+        <div className="mb-6 grid gap-3 md:grid-cols-2">
+          <MetricCard label="Functions" value={formatNumber(scanSummary.functions)} />
           <MetricCard label="Dependencies" value={formatNumber(scanSummary.dependencies)} />
-          <MetricCard label="Project" value={session.name || "Not set"} />
+          {/* <MetricCard label="Repository" value={scanSummary.repoPath || session.repoPath || "Not set"} /> */}
         </div>
       ) : session.results.length === 0 ? (
         <p className="text-sm text-zinc-500">
@@ -509,9 +524,6 @@ export default function ResultsPanel({ session, onSelectCluster }) {
                 <h3 className="mt-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
                   {clusterSummary.clusterCount} distinct service clusters
                 </h3>
-              </div>
-              <div className="rounded-full bg-emerald-100 px-3 py-1.5 text-sm font-semibold text-emerald-700">
-                Louvain Ready
               </div>
             </div>
             <ClusterGraph

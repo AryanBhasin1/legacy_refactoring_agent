@@ -26,8 +26,9 @@ export default function UploadPanel({ session, setSessionFiles, setSessionResult
   });
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white dark:bg-zinc-900 p-5 shadow-sm">
+    <div id="upload-panel" className="rounded-2xl border border-zinc-200 bg-white dark:bg-zinc-900 p-5 shadow-sm">
       <div
+        id="upload-panel-dropzone"
         {...getRootProps()}
         className={`cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition ${
           isDragActive

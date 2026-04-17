@@ -39,6 +39,14 @@ function getToolbarButtonClasses(isActive) {
   }`;
 }
 
+function toDomIdFragment(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "item";
+}
+
 function buildFileTree(files = []) {
   const root = [];
 
@@ -90,7 +98,7 @@ function FileTreeNode({ node, depth = 0 }) {
   const Icon = isFolder ? Folder : FileCode2;
 
   return (
-    <div>
+    <div id={`file-tree-node-${depth}-${toDomIdFragment(node.name)}`}>
       <div
         className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm text-zinc-300"
         style={{ paddingLeft: `${depth * 14 + 8}px` }}
@@ -211,7 +219,7 @@ export default function Sidebar({
   const hasRepoPath = !!(activeSession?.repoPath?.trim());
 
   return (
-    <aside className="relative z-20 flex h-full w-full flex-col overflow-visible bg-zinc-950 text-zinc-100">
+    <aside id="sidebar" className="relative z-20 flex h-full w-full flex-col overflow-visible bg-zinc-950 text-zinc-100">
       <div className="relative z-30 overflow-visible border-b border-zinc-800 px-3 py-3">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -222,6 +230,7 @@ export default function Sidebar({
           </div>
 
           <button
+            id="sidebar-hide-button"
             type="button"
             onClick={onToggleSidebar}
             className={getToolbarButtonClasses(false)}
@@ -305,7 +314,6 @@ export default function Sidebar({
                 description=""
                 isLoading={activeSession.pipeline?.actionState?.scan === "running"}
                 onClick={onScan}
-                disabled={!hasRepoPath}
               />
               <ActionButton
                 icon={Workflow}
@@ -347,6 +355,7 @@ export default function Sidebar({
           <div className="flex flex-col items-start gap-1.5">
             <div className="relative z-40" ref={menuRef}>
               <button
+                id="sidebar-create-button"
                 type="button"
                 onClick={handleCreateMenuToggle}
                 className={getToolbarButtonClasses(isCreateMenuOpen)}
@@ -366,11 +375,11 @@ export default function Sidebar({
                     }}
                     className="flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-zinc-900"
                   >
-                    <UploadCloud size={18} className="mt-0.5 text-emerald-300" />
+                    <Folder size={18} className="mt-0.5 text-emerald-300" />
                     <span>
-                      <span className="block text-sm font-medium text-white">Upload folder</span>
+                      <span className="block text-sm font-medium text-white">Add file or folder</span>
                       <span className="mt-1 block text-xs text-zinc-400">
-                        Upload a project folder — files are sent to the server for scanning.
+                        Start a new project session from local files.
                       </span>
                     </span>
                   </button>
@@ -396,6 +405,7 @@ export default function Sidebar({
             </div>
 
             <button
+              id="sidebar-files-button"
               type="button"
               onClick={handleFilesToggle}
               className={getToolbarButtonClasses(isFilesOpen)}
@@ -406,6 +416,7 @@ export default function Sidebar({
             </button>
 
             <button
+              id="sidebar-search-button"
               type="button"
               onClick={handleSearchToggle}
               className={getToolbarButtonClasses(isSearchOpen)}
@@ -416,6 +427,7 @@ export default function Sidebar({
             </button>
 
             <button
+              id="sidebar-history-button"
               type="button"
               onClick={handleHistoryToggle}
               className={getToolbarButtonClasses(isHistoryOpen)}
@@ -572,6 +584,7 @@ function ActionButton({
 }) {
   return (
     <button
+      id={`action-button-${toDomIdFragment(title)}`}
       type="button"
       onClick={onClick}
       disabled={disabled || isLoading}
